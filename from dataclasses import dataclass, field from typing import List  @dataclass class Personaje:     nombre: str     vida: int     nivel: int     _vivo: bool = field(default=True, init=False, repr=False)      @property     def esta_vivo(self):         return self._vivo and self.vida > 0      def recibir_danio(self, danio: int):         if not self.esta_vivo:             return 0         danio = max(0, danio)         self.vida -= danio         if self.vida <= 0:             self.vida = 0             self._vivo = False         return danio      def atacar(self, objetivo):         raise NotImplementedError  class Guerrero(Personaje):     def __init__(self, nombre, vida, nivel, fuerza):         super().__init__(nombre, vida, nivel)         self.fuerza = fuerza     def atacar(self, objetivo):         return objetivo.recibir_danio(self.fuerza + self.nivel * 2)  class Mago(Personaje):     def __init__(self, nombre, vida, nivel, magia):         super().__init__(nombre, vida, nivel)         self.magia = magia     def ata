@@ -1,0 +1,47 @@
+from dataclasses import dataclass, field
+from typing import List
+
+@dataclass
+class Personaje:
+    nombre: str
+    vida: int
+    nivel: int
+    _vivo: bool = field(default=True, init=False, repr=False)
+
+    @property
+    def esta_vivo(self):
+        return self._vivo and self.vida > 0
+
+    def recibir_danio(self, danio: int):
+        if not self.esta_vivo:
+            return 0
+        danio = max(0, danio)
+        self.vida -= danio
+        if self.vida <= 0:
+            self.vida = 0
+            self._vivo = False
+        return danio
+
+    def atacar(self, objetivo):
+        raise NotImplementedError
+
+class Guerrero(Personaje):
+    def __init__(self, nombre, vida, nivel, fuerza):
+        super().__init__(nombre, vida, nivel)
+        self.fuerza = fuerza
+    def atacar(self, objetivo):
+        return objetivo.recibir_danio(self.fuerza + self.nivel * 2)
+
+class Mago(Personaje):
+    def __init__(self, nombre, vida, nivel, magia):
+        super().__init__(nombre, vida, nivel)
+        self.magia = magia
+    def atacar(self, objetivo):
+        return objetivo.recibir_danio(self.magia + self.nivel)
+
+class Arquero(Personaje):
+    def __init__(self, nombre, vida, nivel, precision):
+        super().__init__(nombre, vida, nivel)
+        self.precision = precision
+    def atacar(self, objetivo):
+        return objetivo.recibir_danio(self.precision + self.nivel)
